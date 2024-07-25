@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון ריבית דריבית</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            direction: rtl; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        input, label { 
+            display: block; 
+            margin-bottom: 10px; 
+            width: 100%; 
+            text-align: right; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        th, td { 
+            border: 1px solid black; 
+            padding: 8px; 
+            text-align: center; 
+        }
+        .logo { 
+            width: 150px; 
+            margin-bottom: 20px; 
+        }
+        button { 
+            background-color: blue; 
+            color: white; 
+            border: none; 
+            padding: 15px 32px; 
+            text-align: center; 
+            text-decoration: none; 
+            display: inline-block; 
+            font-size: 16px; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            border-radius: 4px; 
+        }
+        button:hover {
+            background-color: darkblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://static.wixstatic.com/media/e2ff32_2bd3ff82733048cba536eaf9064292f5~mv2.png/v1/crop/x_0,y_167,w_1264,h_502/fill/w_166,h_66,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/reshefinansim-logo_edited.png" alt="לוגו" class="logo">
+        <h1>מחשבון ריבית דריבית</h1>
+        <label for="initialAmount">סכום ראשוני:</label>
+        <input type="number" id="initialAmount" value="0">
+        <label for="monthlyDeposit">הפקדה חודשית:</label>
+        <input type="number" id="monthlyDeposit" value="200">
+        <label for="annualRate">ריבית שנתית (%):</label>
+        <input type="number" id="annualRate" value="10">
+        <label for="years">מספר שנים:</label>
+        <input type="number" id="years" value="5">
+        <label for="depositFee">דמי ניהול מהפקדה (%):</label>
+        <input type="number" id="depositFee" value="1">
+        <button onclick="calculate()">חשב</button>
+        
+        <h2 id="forecastTitle">תחזית</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>שנה</th>
+                    <th>סה"כ הפקדות שנתיות</th>
+                    <th>רווח שנתי</th>
+                    <th>סה"כ חיסכון</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTable">
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        function calculate() {
+            let initialAmount = parseFloat(document.getElementById('initialAmount').value);
+            let monthlyDeposit = parseFloat(document.getElementById('monthlyDeposit').value);
+            let annualRate = parseFloat(document.getElementById('annualRate').value);
+            let years = parseFloat(document.getElementById('years').value);
+            let depositFee = parseFloat(document.getElementById('depositFee').value);
+            
+            let monthlyRate = (1 + annualRate / 100) ** (1 / 12) - 1;
+            let totalSavings = initialAmount;
+            let totalDepositFees = 0;
+            let resultsTable = document.getElementById('resultsTable');
+            let forecastTitle = document.getElementById('forecastTitle');
+            
+            resultsTable.innerHTML = '';
+            forecastTitle.innerText = `תחזית ל-${years} שנים`;
+
+            for (let i = 1; i <= years; i++) {
+                let cumulativeSavings = totalSavings;
+                let annualDepositFee = 0;
+                let annualManagementFee = 0;
+                let annualProfit = 0;
+
+                for (let j = 1; j <= 12; j++) {
+                    annualDepositFee += (monthlyDeposit * (depositFee / 100));
+                    cumulativeSavings = cumulativeSavings * (1 + monthlyRate) + monthlyDeposit;
+                }
+
+                annualProfit = cumulativeSavings - totalSavings - (monthlyDeposit * 12);
+
+                totalSavings = cumulativeSavings - annualDepositFee;
+                totalDepositFees += annualDepositFee;
+
+                let row = `<tr>
+                    <td>${new Date().getFullYear() + i - 1}</td>
+                    <td>${(monthlyDeposit * 12).toFixed(2)}</td>
+                    <td>${annualProfit.toFixed(2)}</td>
+                    <td>${totalSavings.toFixed(2)}</td>
+                </tr>`;
+                resultsTable.innerHTML += row;
+            }
+        }
+    </script>
+</body>
+</html>
